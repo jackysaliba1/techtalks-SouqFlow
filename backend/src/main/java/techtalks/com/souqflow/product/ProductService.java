@@ -3,7 +3,6 @@ package techtalks.com.souqflow.product;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -14,23 +13,33 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public Product createProduct(Product product) {
-        return productRepository.save(product);
+    public ProductDTO createProduct(ProductDTO product) {
+        Product entity = product.toEntity();
+        Product saved = productRepository.save(entity);
+        return ProductDTO.fromEntity(saved);
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductDTO> getAllProducts() {
+        return productRepository.findAll()
+                .stream()
+                .map(ProductDTO::fromEntity)
+                .toList();
     }
 
-    public Optional<Product> getProductById(Long id) {
-        return productRepository.findById(id);
+    public ProductDTO getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        return ProductDTO.fromEntity(product);
     }
 
-    public List<Product> getProductsByMerchant(Long merchantId) {
-        return productRepository.findByMerchantId(merchantId);
+    public List<ProductDTO> getProductsByMerchant(Long merchantId) {
+        return productRepository.findByMerchantId(merchantId)
+                .stream()
+                .map(ProductDTO::fromEntity)
+                .toList();
     }
 
-    public Product updateProduct(Long id, Product updatedProduct) {
+    public ProductDTO updateProduct(Long id, ProductDTO updatedProduct) {
         Product existing = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
@@ -42,7 +51,8 @@ public class ProductService {
         existing.setLowStockThreshold(updatedProduct.getLowStockThreshold());
         existing.setSku(updatedProduct.getSku());
 
-        return productRepository.save(existing);
+        Product saved = productRepository.save(existing);
+        return ProductDTO.fromEntity(saved);
     }
 
     public void deleteProduct(Long id) {
