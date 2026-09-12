@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import techtalks.com.souqflow.merchant.Merchant;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -60,7 +61,7 @@ public class ProductDTO {
         return dto;
     }
 
-    public Product toEntity() {
+    public Product toEntity(Merchant merchant) {
         Product product = new Product();
         product.setId(this.id);
         product.setName(this.name);
@@ -70,6 +71,7 @@ public class ProductDTO {
         product.setQuantity(this.quantity);
         product.setLowStockThreshold(this.lowStockThreshold);
         product.setSku(this.sku);
+        product.setMerchant(merchant);
         return product;
     }
 }
