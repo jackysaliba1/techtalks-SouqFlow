@@ -72,7 +72,7 @@ export default function ProductsPage() {
                 {!loading && !error && products.length > 0 && (
                     <div className="overflow-x-auto rounded-xl bg-white shadow">
                         <table className="w-full text-left">
-                            <thead className="border-b bg-gray-50">
+                            <thead className="border-b text-gray-400">
                             <tr>
                                 <th className="px-6 py-4">Product</th>
                                 <th className="px-6 py-4">SKU</th>
@@ -101,15 +101,15 @@ export default function ProductsPage() {
                                             {product.sku ?? "-"}
                                         </td>
 
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-4 text-gray-600">
                                             ${Number(product.priceUsd).toFixed(2)}
                                         </td>
 
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-4 text-gray-600">
                                             {Number(product.priceLbp).toLocaleString()} LBP
                                         </td>
 
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-4 text-gray-600">
                                             {product.quantity}
                                         </td>
 
