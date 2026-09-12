@@ -1,10 +1,16 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+
 import type { CreateProductRequest } from "@/types/product";
+import { createProduct } from "@/services/productService";
 
 export default function AddProductPage() {
+    const router = useRouter();
+
     const [form, setForm] = useState<CreateProductRequest>({
+        merchantId: 1,
         name: "",
         description: "",
         priceUsd: 0,
@@ -13,6 +19,9 @@ export default function AddProductPage() {
         lowStockThreshold: 5,
         sku: "",
     });
+
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState("");
 
     const handleChange = (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -32,10 +41,22 @@ export default function AddProductPage() {
         }));
     };
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        console.log(form);
+        try {
+            setSaving(true);
+            setError("");
+
+            await createProduct(form);
+
+            router.push("/products");
+        } catch (err) {
+            console.error(err);
+            setError("Failed to create product.");
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -67,8 +88,8 @@ export default function AddProductPage() {
                             value={form.name}
                             onChange={handleChange}
                             placeholder="Example: Maybelline Lipstick"
-                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
                             required
+                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
                         />
                     </div>
 
@@ -108,6 +129,7 @@ export default function AddProductPage() {
                                 min="0"
                                 value={form.priceUsd}
                                 onChange={handleChange}
+                                required
                                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
                             />
                         </div>
@@ -148,6 +170,7 @@ export default function AddProductPage() {
                                 min="0"
                                 value={form.quantity}
                                 onChange={handleChange}
+                                required
                                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
                             />
                         </div>
@@ -191,11 +214,18 @@ export default function AddProductPage() {
                         />
                     </div>
 
+                    {error && (
+                        <p className="text-sm text-red-600">
+                            {error}
+                        </p>
+                    )}
+
                     <button
                         type="submit"
-                        className="w-full rounded-lg bg-black px-4 py-3 font-semibold text-white hover:bg-gray-800"
+                        disabled={saving}
+                        className="w-full rounded-lg bg-black px-4 py-3 font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        Save Product
+                        {saving ? "Saving..." : "Save Product"}
                     </button>
                 </form>
             </div>
