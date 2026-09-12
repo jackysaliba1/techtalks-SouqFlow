@@ -1,6 +1,8 @@
 package techtalks.com.souqflow.product;
 
 import org.springframework.stereotype.Service;
+import techtalks.com.souqflow.merchant.Merchant;
+import techtalks.com.souqflow.merchant.MerchantRepository;
 
 import java.util.List;
 
@@ -8,13 +10,18 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final MerchantRepository merchantRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, MerchantRepository merchantRepository) {
         this.productRepository = productRepository;
+        this.merchantRepository = merchantRepository;
     }
 
-    public ProductDTO createProduct(ProductDTO product) {
-        Product entity = product.toEntity();
+    public ProductDTO createProduct(ProductDTO productDto) {
+        Merchant merchant = merchantRepository.findById(productDto.getMerchantId())
+                .orElseThrow(() -> new RuntimeException("Merchant not found with id: " + productDto.getMerchantId()));
+
+        Product entity = productDto.toEntity(merchant);
         Product saved = productRepository.save(entity);
         return ProductDTO.fromEntity(saved);
     }

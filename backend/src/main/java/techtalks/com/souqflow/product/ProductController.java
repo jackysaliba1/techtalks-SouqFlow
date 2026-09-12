@@ -1,5 +1,6 @@
 package techtalks.com.souqflow.product;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +14,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ProductDTO createProduct(@RequestBody ProductDTO dto) {
+    public ProductDTO createProduct(@Valid @RequestBody ProductDTO dto) {
         return productService.createProduct(dto);
     }
 
@@ -28,7 +29,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ProductDTO updateProduct(@PathVariable Long id, @RequestBody ProductDTO dto) {
+    public ProductDTO updateProduct(@PathVariable Long id,@Valid @RequestBody ProductDTO dto) {
         return productService.updateProduct(id, dto);
     }
 

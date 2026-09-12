@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-/*
+
 @Entity
-@Table(name = "merchants")*/
+@Table(name = "merchants")
 @Getter
 @Setter
 @NoArgsConstructor
