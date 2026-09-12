@@ -1,5 +1,6 @@
 export interface Product {
     id: number;
+    merchantId: number;
     name: string;
     description?: string;
     priceUsd: number;
@@ -12,6 +13,7 @@ export interface Product {
 }
 
 export interface CreateProductRequest {
+    merchantId: number;
     name: string;
     description?: string;
     priceUsd: number;
