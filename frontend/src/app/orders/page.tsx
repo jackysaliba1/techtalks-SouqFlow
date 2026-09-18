@@ -1,192 +1,132 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-import { createOrder } from "@/services/orderService";
-import { getCustomers } from "@/services/customerService";
-import { getProducts } from "@/services/productService";
+import { getOrders } from "@/services/orderService";
+import type { Order } from "@/types/order";
 
-import type { Customer } from "@/types/customer";
-import type { Product } from "@/types/product";
-
-export default function CreateOrderPage() {
-    const router = useRouter();
-
-    const [customers, setCustomers] = useState<Customer[]>([]);
-    const [products, setProducts] = useState<Product[]>([]);
-
-    const [customerId, setCustomerId] = useState(0);
-    const [productId, setProductId] = useState(0);
-    const [quantity, setQuantity] = useState(1);
-
+export default function OrdersPage() {
+    const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        async function loadData() {
+        async function loadOrders() {
             try {
-                const [customerData, productData] = await Promise.all([
-                    getCustomers(),
-                    getProducts(),
-                ]);
-
-                setCustomers(customerData);
-                setProducts(productData);
-
-                if (customerData.length > 0) {
-                    setCustomerId(customerData[0].id);
-                }
-
-                if (productData.length > 0) {
-                    setProductId(productData[0].id);
-                }
+                const data = await getOrders();
+                setOrders(data);
             } catch (err) {
                 console.error(err);
-                setError("Failed to load customers or products.");
+                setError("Failed to load orders.");
             } finally {
                 setLoading(false);
             }
         }
 
-        loadData();
+        loadOrders();
     }, []);
-
-    const selectedProduct = products.find(
-        (product) => product.id === productId
-    );
-
-    const estimatedTotal = selectedProduct
-        ? Number(selectedProduct.priceUsd) * quantity
-        : 0;
-
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        try {
-            setSaving(true);
-            setError("");
-
-            await createOrder({
-                customerId,
-                productIds: [productId],
-                quantities: [quantity],
-            });
-
-            router.push("/orders");
-        } catch (err) {
-            console.error(err);
-            setError("Failed to create order.");
-        } finally {
-            setSaving(false);
-        }
-    };
-
-    if (loading) {
-        return (
-            <main className="min-h-screen bg-gray-100 p-6">
-                <p className="text-gray-600">Loading...</p>
-            </main>
-        );
-    }
 
     return (
         <main className="min-h-screen bg-gray-100 p-6">
-            <div className="mx-auto max-w-2xl">
-                <h1 className="mb-6 text-3xl font-bold text-gray-900">
-                    Create Order
-                </h1>
-
-                <form
-                    onSubmit={handleSubmit}
-                    className="space-y-5 rounded-xl bg-white p-6 shadow"
-                >
+            <div className="mx-auto max-w-6xl">
+                <div className="mb-6 flex items-center justify-between">
                     <div>
-                        <label className="mb-2 block font-medium text-gray-700">
-                            Customer
-                        </label>
+                        <h1 className="text-3xl font-bold text-gray-900">
+                            Orders
+                        </h1>
 
-                        <select
-                            value={customerId}
-                            onChange={(e) => setCustomerId(Number(e.target.value))}
-                            className="w-full rounded-lg border px-4 py-3 text-gray-900"
-                            required
-                        >
-                            {customers.map((customer) => (
-                                <option key={customer.id} value={customer.id}>
-                                    {customer.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="mb-2 block font-medium text-gray-700">
-                            Product
-                        </label>
-
-                        <select
-                            value={productId}
-                            onChange={(e) => setProductId(Number(e.target.value))}
-                            className="w-full rounded-lg border px-4 py-3 text-gray-900"
-                            required
-                        >
-                            {products.map((product) => (
-                                <option key={product.id} value={product.id}>
-                                    {product.name} - ${Number(product.priceUsd).toFixed(2)}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="mb-2 block font-medium text-gray-700">
-                            Quantity
-                        </label>
-
-                        <input
-                            type="number"
-                            min="1"
-                            value={quantity}
-                            onChange={(e) => setQuantity(Number(e.target.value))}
-                            className="w-full rounded-lg border px-4 py-3 text-gray-900"
-                            required
-                        />
-                    </div>
-
-                    <div className="rounded-lg bg-gray-50 p-4">
-                        <p className="text-sm text-gray-500">
-                            Estimated Total
-                        </p>
-
-                        <p className="text-xl font-bold text-gray-900">
-                            ${estimatedTotal.toFixed(2)}
+                        <p className="mt-1 text-gray-600">
+                            View and manage customer orders.
                         </p>
                     </div>
 
-                    <p className="text-sm text-gray-500">
-                        New orders are created with PENDING status.
-                    </p>
-
-                    {error && (
-                        <p className="text-red-600">
-                            {error}
-                        </p>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={
-                            saving ||
-                            customers.length === 0 ||
-                            products.length === 0
-                        }
-                        className="w-full rounded-lg bg-black px-5 py-3 font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
+                    <Link
+                        href="/orders/add"
+                        className="rounded-lg bg-black px-5 py-3 font-semibold text-white hover:bg-gray-800"
                     >
-                        {saving ? "Saving..." : "Save Order"}
-                    </button>
-                </form>
+                        Create Order
+                    </Link>
+                </div>
+
+                {loading && (
+                    <p className="text-gray-600">
+                        Loading orders...
+                    </p>
+                )}
+
+                {error && (
+                    <p className="text-red-600">
+                        {error}
+                    </p>
+                )}
+
+                {!loading && !error && orders.length === 0 && (
+                    <div className="rounded-xl bg-white p-8 text-center shadow">
+                        <p className="text-gray-600">
+                            No orders found.
+                        </p>
+                    </div>
+                )}
+
+                {!loading && !error && orders.length > 0 && (
+                    <div className="overflow-x-auto rounded-xl bg-white shadow">
+                        <table className="w-full text-left">
+                            <thead className="border-b bg-gray-50">
+                            <tr>
+                                <th className="px-6 py-4">Order</th>
+                                <th className="px-6 py-4">Customer</th>
+                                <th className="px-6 py-4">Total USD</th>
+                                <th className="px-6 py-4">Total LBP</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4">Details</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            {orders.map((order) => (
+                                <tr
+                                    key={order.id}
+                                    className="border-b last:border-b-0"
+                                >
+                                    <td className="px-6 py-4 font-medium text-gray-900">
+                                        Order #{order.id}
+                                    </td>
+
+                                    <td className="px-6 py-4 text-gray-600">
+                                        Customer #{order.customerId}
+                                    </td>
+
+                                    <td className="px-6 py-4 text-gray-600">
+                                        ${Number(order.totalUsd).toFixed(2)}
+                                    </td>
+
+                                    <td className="px-6 py-4 text-gray-600">
+                                        {order.totalLbp != null
+                                            ? `${Number(order.totalLbp).toLocaleString()} LBP`
+                                            : "-"}
+                                    </td>
+
+                                    <td className="px-6 py-4">
+                      <span className="rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-700">
+                        {order.status}
+                      </span>
+                                    </td>
+
+                                    <td className="px-6 py-4">
+                                        <Link
+                                            href={`/orders/${order.id}`}
+                                            className="font-medium text-blue-600 hover:underline"
+                                        >
+                                            View
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
         </main>
     );
