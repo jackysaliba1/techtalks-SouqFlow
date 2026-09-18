@@ -82,26 +82,27 @@ export default function OrderDetailsPage() {
                     </div>
 
                     <div>
-                        <p className="text-sm text-gray-500">Total Amount</p>
+                        <p className="text-sm text-gray-500">Total USD</p>
                         <p className="font-medium text-gray-900">
-                            ${Number(order.totalAmount).toFixed(2)}
+                            ${Number(order.totalUsd).toFixed(2)}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-sm text-gray-500">Total LBP</p>
+                        <p className="font-medium text-gray-900">
+                            {order.totalLbp != null
+                                ? `${Number(order.totalLbp).toLocaleString()} LBP`
+                                : "-"}
                         </p>
                     </div>
 
                     <div>
                         <p className="text-sm text-gray-500">Status</p>
+
                         <span className="inline-block rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-700">
               {order.status}
             </span>
-                    </div>
-
-                    <div>
-                        <p className="text-sm text-gray-500">Order Date</p>
-                        <p className="font-medium text-gray-900">
-                            {order.orderDate
-                                ? new Date(order.orderDate).toLocaleDateString()
-                                : "-"}
-                        </p>
                     </div>
                 </div>
             </div>
