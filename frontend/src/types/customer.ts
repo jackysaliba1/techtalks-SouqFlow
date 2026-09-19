@@ -5,3 +5,9 @@ export interface Customer {
     phone: string;
     orderIds?: number[];
 }
+
+export interface CreateCustomerRequest {
+    name: string;
+    email: string;
+    phone: string;
+}
