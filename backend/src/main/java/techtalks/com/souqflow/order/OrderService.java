@@ -1,11 +1,6 @@
 package techtalks.com.souqflow.order;
 
-import techtalks.com.souqflow.customer.Customer;
-import techtalks.com.souqflow.customer.CustomerRepository;
-import techtalks.com.souqflow.product.Product;
-import techtalks.com.souqflow.product.ProductRepository;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -16,7 +11,9 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
-    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository,
+                        CustomerRepository customerRepository,
+                        ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
@@ -31,11 +28,22 @@ public class OrderService {
         List<Integer> quantities = dto.getQuantities();
 
         for (int i = 0; i < productIds.size(); i++) {
-            Long product_id = productIds.get(i);
-            Product product = productRepository.findById(product_id).orElseThrow(() -> new RuntimeException("Product not found with id: " + product_id));
-            totalUsd = totalUsd.add(product.getPriceUsd().multiply(BigDecimal.valueOf(quantities.get(i))));
-        }
+            Long productId = productIds.get(i);
+            int quantity = quantities.get(i);
 
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+
+            if (product.getStock() < quantity) {
+                throw new InsufficientStockException("Insufficient stock for product: " + product.getName());
+            }
+
+            product.setStock(product.getStock() - quantity);
+            productRepository.save(product);
+
+            totalUsd = totalUsd.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+        }
+        
         Order order = new Order();
         order.setCustomer(customer);
         order.setStatus("PENDING");
@@ -50,7 +58,8 @@ public class OrderService {
     }
 
     public OrderDTO getById(Long id) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
         return toDto(order);
     }
 
