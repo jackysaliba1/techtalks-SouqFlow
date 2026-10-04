@@ -1,6 +1,14 @@
 package techtalks.com.souqflow.order;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import techtalks.com.souqflow.customer.Customer;
+import techtalks.com.souqflow.customer.CustomerRepository;
+import techtalks.com.souqflow.product.InventoryService;
+import techtalks.com.souqflow.product.Product;
+import techtalks.com.souqflow.product.ProductRepository;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -10,40 +18,49 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
+    private final InventoryService inventoryService;
 
     public OrderService(OrderRepository orderRepository,
                         CustomerRepository customerRepository,
-                        ProductRepository productRepository) {
+                        ProductRepository productRepository,
+                        InventoryService inventoryService) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
+        this.inventoryService = inventoryService;
     }
 
+    @Transactional
     public OrderDTO create(OrderDTO dto) {
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + dto.getCustomerId()));
 
-        BigDecimal totalUsd = BigDecimal.ZERO;
         List<Long> productIds = dto.getProductIds();
         List<Integer> quantities = dto.getQuantities();
+
+        if (productIds == null || quantities == null
+                || productIds.isEmpty() || productIds.size() != quantities.size()) {
+            throw new IllegalArgumentException("Order must have products and matching quantities");
+        }
+
+        BigDecimal totalUsd = BigDecimal.ZERO;
 
         for (int i = 0; i < productIds.size(); i++) {
             Long productId = productIds.get(i);
             int quantity = quantities.get(i);
 
+            if (quantity <= 0) {
+                throw new IllegalArgumentException("Quantity must be greater than 0");
+            }
+
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
 
-            if (product.getStock() < quantity) {
-                throw new InsufficientStockException("Insufficient stock for product: " + product.getName());
-            }
+            inventoryService.deductStock(productId, quantity);
 
-            product.setStock(product.getStock() - quantity);
-            productRepository.save(product);
-
-            totalUsd = totalUsd.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+            totalUsd = totalUsd.add(product.getPriceUsd().multiply(BigDecimal.valueOf(quantity)));
         }
-        
+
         Order order = new Order();
         order.setCustomer(customer);
         order.setStatus("PENDING");
