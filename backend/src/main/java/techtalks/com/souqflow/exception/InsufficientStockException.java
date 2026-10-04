@@ -1,4 +1,4 @@
-package techtalks.com.souqflow.order;
+package techtalks.com.souqflow.exception;
 
 public class InsufficientStockException extends RuntimeException{
 

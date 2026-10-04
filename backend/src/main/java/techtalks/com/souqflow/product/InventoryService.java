@@ -1,4 +1,5 @@
 package techtalks.com.souqflow.product;
+import techtalks.com.souqflow.exception.InsufficientStockException;
 
 import org.springframework.stereotype.Service;
 import java.util.Optional;
@@ -13,16 +14,17 @@ public class InventoryService {
     public boolean isStockAvailable(Long productId, int quantity) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
-        return product.getStock() >= quantity;
+        return product.getQuantity() >= quantity;
     }
-    public void deductStock(Long productId, int quantity){
+
+    public void deductStock(Long productId, int quantity) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
 
-        if(product.getStock() < quantity){
-            throw new InsufficientStockException("Insufficient stock for product: "+ product.getName());
+        if (product.getQuantity() < quantity) {
+            throw new InsufficientStockException("Insufficient stock for product: " + product.getName());
         }
-        product.setStock(product.getStock() - quantity);
+        product.setQuantity(product.getQuantity() - quantity);
         productRepository.save(product);
     }
 }
