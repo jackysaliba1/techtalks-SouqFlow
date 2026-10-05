@@ -46,11 +46,10 @@ public class Payment {
     private String status = "PENDING";
 
     @Column(name = "provider_reference")
-    private String providerReference;   // gateway/Wish Money reference — not account data
+    private String providerReference;
 
     @Column(name = "masked_account")
-    private String maskedAccount;       // e.g. "**** 1234" — last digits only, never full
-
+    private String maskedAccount;
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

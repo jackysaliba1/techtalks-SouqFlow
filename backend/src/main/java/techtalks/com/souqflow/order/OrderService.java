@@ -1,11 +1,12 @@
 package techtalks.com.souqflow.order;
 
+import org.springframework.transaction.annotation.Transactional;
+import techtalks.com.souqflow.InventoryService;
 import techtalks.com.souqflow.customer.Customer;
 import techtalks.com.souqflow.customer.CustomerRepository;
 import techtalks.com.souqflow.product.Product;
 import techtalks.com.souqflow.product.ProductRepository;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -15,13 +16,16 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
+    private final InventoryService inventoryService;
 
-    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, InventoryService inventoryService) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
+        this.inventoryService = inventoryService;
     }
 
+    @Transactional
     public OrderDTO create(OrderDTO dto) {
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + dto.getCustomerId()));
@@ -32,7 +36,9 @@ public class OrderService {
 
         for (int i = 0; i < productIds.size(); i++) {
             Long product_id = productIds.get(i);
+            int qty = quantities.get(i);
             Product product = productRepository.findById(product_id).orElseThrow(() -> new RuntimeException("Product not found with id: " + product_id));
+            inventoryService.deductStock(product_id, qty);
             totalUsd = totalUsd.add(product.getPriceUsd().multiply(BigDecimal.valueOf(quantities.get(i))));
         }
 
