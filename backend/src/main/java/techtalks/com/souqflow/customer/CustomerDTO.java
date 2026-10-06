@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -32,6 +33,8 @@ public class CustomerDTO {
     )
     private String phone;
 
+    private BigDecimal balanceUsd;
+
     public static Customer fromDto(CustomerDTO dto) {
         Customer customer = new Customer();
         customer.setName(dto.getName());
@@ -46,6 +49,7 @@ public class CustomerDTO {
         dto.setName(customer.getName());
         dto.setEmail(customer.getEmail());
         dto.setPhone(customer.getPhone());
+        dto.setBalanceUsd(customer.getBalanceUsd());
         dto.setOrderIds(
                 customer.getOrders()
                         .stream()
