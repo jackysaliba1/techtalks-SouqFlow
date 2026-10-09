@@ -4,6 +4,7 @@ export interface Customer {
     email: string;
     phone: string;
     orderIds?: number[];
+    balanceUsd: number;
 }
 
 export interface CreateCustomerRequest {

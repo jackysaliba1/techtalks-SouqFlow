@@ -1,8 +1,10 @@
 package techtalks.com.souqflow.customer;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -10,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import techtalks.com.souqflow.order.Order;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,4 +47,9 @@ public class Customer {
     )
     @Column(nullable = false)
     private String phone;
+
+    @NotNull
+    @DecimalMin(value = "0.0", message = "Balance cannot be negative")
+    @Column(name = "balance_usd", nullable = false, precision = 10, scale = 2)
+    private BigDecimal balanceUsd = BigDecimal.ZERO;
 }

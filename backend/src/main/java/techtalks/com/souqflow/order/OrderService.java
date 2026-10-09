@@ -3,9 +3,9 @@ package techtalks.com.souqflow.order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import techtalks.com.souqflow.product.InventoryService;
 import techtalks.com.souqflow.customer.Customer;
 import techtalks.com.souqflow.customer.CustomerRepository;
-import techtalks.com.souqflow.product.InventoryService;
 import techtalks.com.souqflow.product.Product;
 import techtalks.com.souqflow.product.ProductRepository;
 
