@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { getInvoices } from "@/services/invoiceService";
 import type { Invoice } from "@/types/invoice";
+import StatusBadge from "@/components/StatusBadge";
 
 export default function InvoicesPage() {
     const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -14,8 +15,7 @@ export default function InvoicesPage() {
     useEffect(() => {
         async function loadInvoices() {
             try {
-                const data = await getInvoices();
-                setInvoices(data);
+                setInvoices(await getInvoices());
             } catch (err) {
                 console.error(err);
                 setError("Failed to load invoices.");
@@ -23,7 +23,6 @@ export default function InvoicesPage() {
                 setLoading(false);
             }
         }
-
         loadInvoices();
     }, []);
 
@@ -31,16 +30,13 @@ export default function InvoicesPage() {
         <main className="min-h-screen bg-gray-100 p-6">
             <div className="mx-auto max-w-6xl">
                 <div className="mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900">
-                        Invoices
-                    </h1>
+                    <h1 className="text-3xl font-bold text-gray-900">Invoices</h1>
                     <p className="mt-1 text-gray-600">
-                        View invoices created from accepted quotes.
+                        Invoices created from accepted quotes.
                     </p>
                 </div>
 
                 {loading && <p className="text-gray-600">Loading invoices...</p>}
-
                 {error && <p className="text-red-600">{error}</p>}
 
                 {!loading && !error && invoices.length === 0 && (
@@ -56,37 +52,29 @@ export default function InvoicesPage() {
                             <tr>
                                 <th className="px-6 py-4">Invoice</th>
                                 <th className="px-6 py-4">Customer</th>
-                                <th className="px-6 py-4">Total USD</th>
-                                <th className="px-6 py-4">Total LBP</th>
+                                <th className="px-6 py-4">Issued</th>
+                                <th className="px-6 py-4">Due</th>
                                 <th className="px-6 py-4">Status</th>
                                 <th className="px-6 py-4">Details</th>
                             </tr>
                             </thead>
-
                             <tbody>
                             {invoices.map((invoice) => (
-                                <tr
-                                    key={invoice.id}
-                                    className="border-b last:border-b-0"
-                                >
+                                <tr key={invoice.id} className="border-b last:border-b-0">
                                     <td className="px-6 py-4 font-medium text-gray-900">
-                                        Invoice #{invoice.id}
+                                        {invoice.invoiceNumber}
                                     </td>
                                     <td className="px-6 py-4 text-gray-600">
-                                        Customer #{invoice.customerId}
+                                        {invoice.customerName}
                                     </td>
                                     <td className="px-6 py-4 text-gray-600">
-                                        ${Number(invoice.totalUsd).toFixed(2)}
+                                        {invoice.issueDate}
                                     </td>
                                     <td className="px-6 py-4 text-gray-600">
-                                        {invoice.totalLbp != null
-                                            ? `${Number(invoice.totalLbp).toLocaleString()} LBP`
-                                            : "-"}
+                                        {invoice.dueDate}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-700">
-                                            {invoice.status}
-                                        </span>
+                                        <StatusBadge status={invoice.status} />
                                     </td>
                                     <td className="px-6 py-4">
                                         <Link

@@ -1,15 +1,26 @@
+export interface QuoteItem {
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    lineTotal?: number;
+}
+
 export interface Quote {
     id: number;
+    quoteNumber: string;
     customerId: number;
+    customerName: string;
     status: string;
-    totalUsd: number;
-    totalLbp?: number;
-    productIds?: number[];
-    quantities?: number[];
+    issueDate: string;
+    validUntil?: string;
+    total: number;
+    notes?: string;
+    items: QuoteItem[];
 }
 
 export interface CreateQuoteRequest {
     customerId: number;
-    productIds: number[];
-    quantities: number[];
+    validUntil?: string;
+    notes?: string;
+    items: { description: string; quantity: number; unitPrice: number }[];
 }

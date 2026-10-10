@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { getQuotes } from "@/services/quoteService";
 import type { Quote } from "@/types/quote";
+import StatusBadge from "@/components/StatusBadge";
 
 export default function QuotesPage() {
     const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -14,8 +15,7 @@ export default function QuotesPage() {
     useEffect(() => {
         async function loadQuotes() {
             try {
-                const data = await getQuotes();
-                setQuotes(data);
+                setQuotes(await getQuotes());
             } catch (err) {
                 console.error(err);
                 setError("Failed to load quotes.");
@@ -23,7 +23,6 @@ export default function QuotesPage() {
                 setLoading(false);
             }
         }
-
         loadQuotes();
     }, []);
 
@@ -32,14 +31,11 @@ export default function QuotesPage() {
             <div className="mx-auto max-w-6xl">
                 <div className="mb-6 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">
-                            Quotes
-                        </h1>
+                        <h1 className="text-3xl font-bold text-gray-900">Quotes</h1>
                         <p className="mt-1 text-gray-600">
                             View and manage customer quotes.
                         </p>
                     </div>
-
                     <Link
                         href="/quotes/add"
                         className="rounded-lg bg-black px-5 py-3 font-semibold text-white hover:bg-gray-800"
@@ -49,7 +45,6 @@ export default function QuotesPage() {
                 </div>
 
                 {loading && <p className="text-gray-600">Loading quotes...</p>}
-
                 {error && <p className="text-red-600">{error}</p>}
 
                 {!loading && !error && quotes.length === 0 && (
@@ -65,37 +60,29 @@ export default function QuotesPage() {
                             <tr>
                                 <th className="px-6 py-4">Quote</th>
                                 <th className="px-6 py-4">Customer</th>
-                                <th className="px-6 py-4">Total USD</th>
-                                <th className="px-6 py-4">Total LBP</th>
+                                <th className="px-6 py-4">Total</th>
+                                <th className="px-6 py-4">Valid until</th>
                                 <th className="px-6 py-4">Status</th>
                                 <th className="px-6 py-4">Details</th>
                             </tr>
                             </thead>
-
                             <tbody>
                             {quotes.map((quote) => (
-                                <tr
-                                    key={quote.id}
-                                    className="border-b last:border-b-0"
-                                >
+                                <tr key={quote.id} className="border-b last:border-b-0">
                                     <td className="px-6 py-4 font-medium text-gray-900">
-                                        Quote #{quote.id}
+                                        {quote.quoteNumber}
                                     </td>
                                     <td className="px-6 py-4 text-gray-600">
-                                        Customer #{quote.customerId}
+                                        {quote.customerName}
                                     </td>
                                     <td className="px-6 py-4 text-gray-600">
-                                        ${Number(quote.totalUsd).toFixed(2)}
+                                        ${Number(quote.total).toFixed(2)}
                                     </td>
                                     <td className="px-6 py-4 text-gray-600">
-                                        {quote.totalLbp != null
-                                            ? `${Number(quote.totalLbp).toLocaleString()} LBP`
-                                            : "-"}
+                                        {quote.validUntil ?? "-"}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-700">
-                                            {quote.status}
-                                        </span>
+                                        <StatusBadge status={quote.status} />
                                     </td>
                                     <td className="px-6 py-4">
                                         <Link

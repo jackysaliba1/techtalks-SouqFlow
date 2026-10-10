@@ -6,18 +6,26 @@ import { useRouter } from "next/navigation";
 import { createQuote } from "@/services/quoteService";
 
 interface Line {
-    productId: string;
+    description: string;
     quantity: string;
+    unitPrice: string;
 }
+
+const emptyLine: Line = { description: "", quantity: "1", unitPrice: "" };
 
 export default function AddQuotePage() {
     const router = useRouter();
     const [customerId, setCustomerId] = useState("");
-    const [lines, setLines] = useState<Line[]>([
-        { productId: "", quantity: "1" },
-    ]);
+    const [validUntil, setValidUntil] = useState("");
+    const [notes, setNotes] = useState("");
+    const [lines, setLines] = useState<Line[]>([{ ...emptyLine }]);
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
+
+    const total = lines.reduce(
+        (sum, l) => sum + Number(l.quantity || 0) * Number(l.unitPrice || 0),
+        0
+    );
 
     function updateLine(index: number, field: keyof Line, value: string) {
         setLines(
@@ -38,10 +46,16 @@ export default function AddQuotePage() {
 
         if (
             lines.some(
-                (l) => !l.productId || Number(l.productId) <= 0 || Number(l.quantity) <= 0
+                (l) =>
+                    !l.description.trim() ||
+                    Number(l.quantity) <= 0 ||
+                    l.unitPrice === "" ||
+                    Number(l.unitPrice) < 0
             )
         ) {
-            setError("Each line needs a product ID and a quantity greater than 0.");
+            setError(
+                "Each line needs a description, a quantity above 0, and a price of 0 or more."
+            );
             return;
         }
 
@@ -49,13 +63,18 @@ export default function AddQuotePage() {
             setSaving(true);
             const quote = await createQuote({
                 customerId: Number(customerId),
-                productIds: lines.map((l) => Number(l.productId)),
-                quantities: lines.map((l) => Number(l.quantity)),
+                ...(validUntil ? { validUntil } : {}),
+                ...(notes.trim() ? { notes: notes.trim() } : {}),
+                items: lines.map((l) => ({
+                    description: l.description.trim(),
+                    quantity: Number(l.quantity),
+                    unitPrice: Number(l.unitPrice),
+                })),
             });
             router.push(`/quotes/${quote.id}`);
         } catch (err) {
             console.error(err);
-            setError("Failed to create quote.");
+            setError(err instanceof Error ? err.message : "Failed to create quote.");
         } finally {
             setSaving(false);
         }
@@ -83,40 +102,74 @@ export default function AddQuotePage() {
 
                     <div>
                         <label className="mb-1 block font-medium text-gray-700">
-                            Products
+                            Valid until
+                        </label>
+                        <input
+                            type="date"
+                            value={validUntil}
+                            onChange={(e) => setValidUntil(e.target.value)}
+                            className="w-full rounded-lg border p-3"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="mb-1 block font-medium text-gray-700">
+                            Notes
+                        </label>
+                        <textarea
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            className="w-full rounded-lg border p-3"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="mb-1 block font-medium text-gray-700">
+                            Items
                         </label>
                         {lines.map((line, index) => (
                             <div key={index} className="mb-2 flex gap-2">
                                 <input
-                                    type="number"
-                                    placeholder="Product ID"
-                                    value={line.productId}
+                                    placeholder="Description"
+                                    value={line.description}
                                     onChange={(e) =>
-                                        updateLine(index, "productId", e.target.value)
+                                        updateLine(index, "description", e.target.value)
                                     }
                                     className="w-full rounded-lg border p-3"
                                 />
                                 <input
                                     type="number"
-                                    placeholder="Quantity"
+                                    placeholder="Qty"
                                     value={line.quantity}
                                     onChange={(e) =>
                                         updateLine(index, "quantity", e.target.value)
                                     }
-                                    className="w-32 rounded-lg border p-3"
+                                    className="w-24 rounded-lg border p-3"
+                                />
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Price"
+                                    value={line.unitPrice}
+                                    onChange={(e) =>
+                                        updateLine(index, "unitPrice", e.target.value)
+                                    }
+                                    className="w-28 rounded-lg border p-3"
                                 />
                             </div>
                         ))}
                         <button
                             type="button"
-                            onClick={() =>
-                                setLines([...lines, { productId: "", quantity: "1" }])
-                            }
+                            onClick={() => setLines([...lines, { ...emptyLine }])}
                             className="font-medium text-blue-600 hover:underline"
                         >
-                            + Add product
+                            + Add item
                         </button>
                     </div>
+
+                    <p className="font-semibold text-gray-900">
+                        Total: ${total.toFixed(2)}
+                    </p>
 
                     {error && <p className="text-red-600">{error}</p>}
 

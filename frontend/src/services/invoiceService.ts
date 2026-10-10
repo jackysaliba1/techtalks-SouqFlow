@@ -1,17 +1,23 @@
-import { apiFetch } from "@/lib/api";
+import { request } from "@/services/request";
 import type { Invoice } from "@/types/invoice";
-import { USE_MOCK, mockInvoices } from "@/services/mockData";
 
-export async function getInvoices(): Promise<Invoice[]> {
-    if (USE_MOCK) return [...mockInvoices];
-    return apiFetch<Invoice[]>("/invoices");
+export function getInvoices() {
+    return request<Invoice[]>("/api/invoices");
 }
 
-export async function getInvoiceById(id: number): Promise<Invoice> {
-    if (USE_MOCK) {
-        const invoice = mockInvoices.find((i) => i.id === id);
-        if (!invoice) throw new Error("Invoice not found");
-        return invoice;
-    }
-    return apiFetch<Invoice>(`/invoices/${id}`);
+export function getInvoiceById(id: number) {
+    return request<Invoice>(`/api/invoices/${id}`);
+}
+
+export function createInvoiceFromQuote(quoteId: number, dueDate: string) {
+    return request<Invoice>(`/api/invoices/from-quote/${quoteId}`, {
+        method: "POST",
+        body: JSON.stringify({ dueDate }),
+    });
+}
+
+export function cancelInvoice(id: number) {
+    return request<Invoice>(`/api/invoices/${id}/cancel`, {
+        method: "PATCH",
+    });
 }

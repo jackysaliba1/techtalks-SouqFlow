@@ -1,8 +1,14 @@
+import type { QuoteItem } from "@/types/quote";
+
 export interface Invoice {
     id: number;
-    quoteId: number;
+    invoiceNumber: string;
     customerId: number;
+    customerName: string;
+    quoteId: number;
     status: string;
-    totalUsd: number;
-    totalLbp?: number;
+    issueDate: string;
+    dueDate: string;
+    total?: number;
+    items?: QuoteItem[];
 }
