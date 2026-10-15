@@ -29,12 +29,18 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ProductDTO updateProduct(@PathVariable Long id,@Valid @RequestBody ProductDTO dto) {
+    public ProductDTO updateProduct(@PathVariable Long id, @Valid @RequestBody ProductDTO dto) {
         return productService.updateProduct(id, dto);
     }
 
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
+    }
+
+    // GET /product/low-stock  (only the logged-in merchant's products)
+    @GetMapping("/low-stock")
+    public List<ProductDTO> getLowStockProducts() {
+        return productService.getLowStockProducts();
     }
 }
