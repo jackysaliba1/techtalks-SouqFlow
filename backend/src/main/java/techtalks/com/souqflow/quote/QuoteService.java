@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+
 @Service
 @RequiredArgsConstructor
 public class QuoteService {
@@ -73,7 +74,7 @@ public class QuoteService {
 
     Quote find(Long id) {
         return quoteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(STR."Quote not found: \{id}"));
+                .orElseThrow(() -> new ResourceNotFoundException("Quote not found: " + id));
     }
 
     QuoteResponse toResponse(Quote q) {

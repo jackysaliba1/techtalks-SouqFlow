@@ -68,7 +68,10 @@ public class Product {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
-
+    public boolean isLowStock() {
+        int threshold = (lowStockThreshold != null) ? lowStockThreshold : 5;
+        return quantity != null && quantity > 0 && quantity <= threshold;
+    }
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
