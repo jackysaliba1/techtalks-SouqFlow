@@ -2,20 +2,30 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+
+import { register } from "@/services/authService";
 
 export default function RegisterPage() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const router = useRouter();
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        console.log({
-            name,
-            email,
-            password,
-        });
+        try {
+            await register(name, email, password);
+
+            alert("Registration successful! You can now log in.");
+
+            router.push("/");
+        } catch (error) {
+            console.error("Registration failed:", error);
+            alert("Registration failed. Please try again.");
+        }
     };
 
     return (
@@ -32,6 +42,7 @@ export default function RegisterPage() {
                 </div>
 
                 <form className="space-y-5" onSubmit={handleSubmit}>
+                    {/* FULL NAME */}
                     <div>
                         <label
                             htmlFor="name"
@@ -51,6 +62,7 @@ export default function RegisterPage() {
                         />
                     </div>
 
+                    {/* EMAIL */}
                     <div>
                         <label
                             htmlFor="email"
@@ -70,6 +82,7 @@ export default function RegisterPage() {
                         />
                     </div>
 
+                    {/* PASSWORD */}
                     <div>
                         <label
                             htmlFor="password"
@@ -89,6 +102,7 @@ export default function RegisterPage() {
                         />
                     </div>
 
+                    {/* REGISTER BUTTON */}
                     <button
                         type="submit"
                         className="w-full rounded-lg bg-black px-4 py-3 font-semibold text-white hover:bg-gray-800"
@@ -100,7 +114,7 @@ export default function RegisterPage() {
                 <p className="mt-6 text-center text-sm text-gray-600">
                     Already have an account?{" "}
                     <Link
-                        href="/login"
+                        href="/"
                         className="font-semibold text-black underline"
                     >
                         Login
