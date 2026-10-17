@@ -3,20 +3,37 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
+import { login } from "@/services/authService";
 import styles from "./login.module.css";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const router = useRouter();
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        console.log({
-            email,
-            password,
-        });
+        setError("");
+        setLoading(true);
+
+        try {
+            const response = await login(email, password);
+
+            localStorage.setItem("token", response.token);
+
+            router.push("/dashboard");
+        } catch (error) {
+            console.error("Login failed:", error);
+            setError("Invalid email or password.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -69,12 +86,20 @@ export default function LoginPage() {
                         />
                     </div>
 
+                    {/* ERROR */}
+                    {error && (
+                        <p className="mb-4 text-center text-sm text-red-600">
+                            {error}
+                        </p>
+                    )}
+
                     {/* LOGIN BUTTON */}
                     <button
                         className={styles.loginButton}
                         type="submit"
+                        disabled={loading}
                     >
-                        Login
+                        {loading ? "Logging in..." : "Login"}
                     </button>
 
                     {/* REGISTER */}
