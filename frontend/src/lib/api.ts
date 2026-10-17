@@ -11,15 +11,20 @@ export async function apiFetch<T>(
 ): Promise<T> {
     const { token, headers, ...rest } = options;
 
+    const storedToken =
+        typeof window !== "undefined"
+            ? localStorage.getItem("token")
+            : null;
+
+    const authToken = token || storedToken;
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...rest,
         headers: {
             "Content-Type": "application/json",
             ...headers,
-            ...(token
-                ? {
-                    Authorization: `Bearer ${token}`,
-                }
+            ...(authToken
+                ? { Authorization: `Bearer ${authToken}` }
                 : {}),
         },
     });
@@ -28,5 +33,11 @@ export async function apiFetch<T>(
         throw new Error(`API request failed: ${response.status}`);
     }
 
-    return response.json() as Promise<T>;
+    const contentType = response.headers.get("content-type");
+
+    if (contentType?.includes("application/json")) {
+        return response.json() as Promise<T>;
+    }
+
+    return response.text() as Promise<T>;
 }
