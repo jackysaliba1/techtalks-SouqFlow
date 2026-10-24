@@ -2,6 +2,7 @@ import { apiFetch } from "@/lib/api";
 
 interface LoginResponse {
     token: string;
+    fullName: string;
 }
 
 export async function login(

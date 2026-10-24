@@ -1,234 +1,250 @@
 "use client";
 
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import Link from "next/link";
+import { useState, type CSSProperties, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-
-import type { CreateProductRequest } from "@/types/product";
 import { createProduct } from "@/services/productService";
 
+// TODO: the backend requires merchantId. Ideally the server reads it from the
+// logged-in user's token. Until then, set the value your merchant row has.
+const MERCHANT_ID = 1;
+
+// Inline styles on purpose, so global CSS can't override them.
+const input: CSSProperties = {
+  boxSizing: "border-box",
+  width: "100%",
+  height: 46,
+  padding: "0 14px",
+  fontSize: 14,
+  fontFamily: "inherit",
+  color: "#173B32",
+  background: "#fff",
+  border: "1px solid #DDE6E0",
+  borderRadius: 12,
+  outline: "none",
+};
+
+const label: CSSProperties = {
+  display: "block",
+  marginBottom: 6,
+  fontSize: 12,
+  fontWeight: 600,
+  color: "#365449",
+};
+
+const hint: CSSProperties = { margin: "6px 0 0", fontSize: 11, color: "#9AA69F" };
+
 export default function AddProductPage() {
-    const router = useRouter();
+  const router = useRouter();
 
-    const [form, setForm] = useState<CreateProductRequest>({
-        merchantId: 1,
-        name: "",
-        description: "",
-        priceUsd: 0,
-        priceLbp: 0,
-        quantity: 0,
-        lowStockThreshold: 5,
-        sku: "",
-    });
+  const [name, setName] = useState("");
+  const [sku, setSku] = useState("");
+  const [description, setDescription] = useState("");
+  const [priceUsd, setPriceUsd] = useState("");
+  const [priceLbp, setPriceLbp] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [lowStockThreshold, setLowStockThreshold] = useState("5");
 
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-    const handleChange = (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const { name, value } = e.target;
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError("");
 
-        const numberFields = [
-            "priceUsd",
-            "priceLbp",
-            "quantity",
-            "lowStockThreshold",
-        ];
+    if (!name.trim()) return setError("Product name is required.");
+    if (priceUsd === "" || Number(priceUsd) < 0)
+      return setError("Enter a valid USD price.");
+    if (priceLbp === "" || Number(priceLbp) < 0)
+      return setError("Enter a valid LBP price.");
+    if (quantity === "" || Number(quantity) < 0)
+      return setError("Enter a valid quantity.");
+    if (lowStockThreshold === "" || Number(lowStockThreshold) < 0)
+      return setError("Enter a valid low stock threshold.");
 
-        setForm((previousForm) => ({
-            ...previousForm,
-            [name]: numberFields.includes(name) ? Number(value) : value,
-        }));
-    };
+    setSaving(true);
+    try {
+      await createProduct({
+        merchantId: MERCHANT_ID,
+        name: name.trim(),
+        description: description.trim() || undefined,
+        sku: sku.trim() || undefined,
+        priceUsd: Number(priceUsd),
+        priceLbp: Number(priceLbp),
+        quantity: Number(quantity),
+        lowStockThreshold: Number(lowStockThreshold),
+      });
+      router.push("/products");
+    } catch (err) {
+      console.error("Failed to create product:", err);
+      setError(
+        err instanceof Error && err.message
+          ? err.message
+          : "Could not save the product."
+      );
+      setSaving(false);
+    }
+  }
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+  return (
+    <main
+      style={{ minHeight: "100vh", background: "#F7F9F7", padding: "32px 20px" }}
+    >
+      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <Link
+          href="/products"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            height: 34,
+            padding: "0 14px",
+            fontSize: 12,
+            fontWeight: 600,
+            color: "#173B32",
+            textDecoration: "none",
+            background: "#fff",
+            border: "1px solid #E2E9E4",
+            borderRadius: 10,
+          }}
+        >
+          ← Back to Products
+        </Link>
 
-        try {
-            setSaving(true);
-            setError("");
+        <div style={{ marginTop: 22 }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "#43836C",
+            }}
+          >
+            Catalog
+          </p>
+          <h1 style={{ margin: "6px 0 0", fontSize: 34, fontWeight: 700, color: "#173B32" }}>
+            Add product
+          </h1>
+          <p style={{ margin: "8px 0 0", fontSize: 14, color: "#7A8982" }}>
+            Fill in the details below to add a new product to your catalog.
+          </p>
+        </div>
 
-            await createProduct(form);
-
-            router.push("/products");
-        } catch (err) {
-            console.error(err);
-            setError("Failed to create product.");
-        } finally {
-            setSaving(false);
-        }
-    };
-
-    return (
-        <main className="min-h-screen bg-gray-100 p-6">
-            <div className="mx-auto max-w-2xl rounded-xl bg-white p-8 shadow">
-                <div className="mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900">
-                        Add Product
-                    </h1>
-
-                    <p className="mt-1 text-gray-600">
-                        Add a new product to your inventory.
-                    </p>
-                </div>
-
-                <form className="space-y-5" onSubmit={handleSubmit}>
-                    <div>
-                        <label
-                            htmlFor="name"
-                            className="mb-2 block text-sm font-medium text-gray-700"
-                        >
-                            Product Name
-                        </label>
-
-                        <input
-                            id="name"
-                            name="name"
-                            type="text"
-                            value={form.name}
-                            onChange={handleChange}
-                            placeholder="Example: Maybelline Lipstick"
-                            required
-                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
-                        />
-                    </div>
-
-                    <div>
-                        <label
-                            htmlFor="description"
-                            className="mb-2 block text-sm font-medium text-gray-700"
-                        >
-                            Description
-                        </label>
-
-                        <textarea
-                            id="description"
-                            name="description"
-                            value={form.description ?? ""}
-                            onChange={handleChange}
-                            placeholder="Product description"
-                            rows={4}
-                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
-                        />
-                    </div>
-
-                    <div className="grid gap-5 md:grid-cols-2">
-                        <div>
-                            <label
-                                htmlFor="priceUsd"
-                                className="mb-2 block text-sm font-medium text-gray-700"
-                            >
-                                Price USD
-                            </label>
-
-                            <input
-                                id="priceUsd"
-                                name="priceUsd"
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={form.priceUsd}
-                                onChange={handleChange}
-                                required
-                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
-                            />
-                        </div>
-
-                        <div>
-                            <label
-                                htmlFor="priceLbp"
-                                className="mb-2 block text-sm font-medium text-gray-700"
-                            >
-                                Price LBP
-                            </label>
-
-                            <input
-                                id="priceLbp"
-                                name="priceLbp"
-                                type="number"
-                                min="0"
-                                value={form.priceLbp}
-                                onChange={handleChange}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid gap-5 md:grid-cols-2">
-                        <div>
-                            <label
-                                htmlFor="quantity"
-                                className="mb-2 block text-sm font-medium text-gray-700"
-                            >
-                                Quantity
-                            </label>
-
-                            <input
-                                id="quantity"
-                                name="quantity"
-                                type="number"
-                                min="0"
-                                value={form.quantity}
-                                onChange={handleChange}
-                                required
-                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
-                            />
-                        </div>
-
-                        <div>
-                            <label
-                                htmlFor="lowStockThreshold"
-                                className="mb-2 block text-sm font-medium text-gray-700"
-                            >
-                                Low Stock Threshold
-                            </label>
-
-                            <input
-                                id="lowStockThreshold"
-                                name="lowStockThreshold"
-                                type="number"
-                                min="0"
-                                value={form.lowStockThreshold}
-                                onChange={handleChange}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label
-                            htmlFor="sku"
-                            className="mb-2 block text-sm font-medium text-gray-700"
-                        >
-                            SKU
-                        </label>
-
-                        <input
-                            id="sku"
-                            name="sku"
-                            type="text"
-                            value={form.sku ?? ""}
-                            onChange={handleChange}
-                            placeholder="Example: LIP-001"
-                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
-                        />
-                    </div>
-
-                    {error && (
-                        <p className="text-sm text-red-600">
-                            {error}
-                        </p>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={saving}
-                        className="w-full rounded-lg bg-black px-4 py-3 font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        {saving ? "Saving..." : "Save Product"}
-                    </button>
-                </form>
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            marginTop: 24,
+            padding: 28,
+            background: "#fff",
+            border: "1px solid #E2E9E4",
+            borderRadius: 16,
+            boxShadow: "0 3px 14px rgba(23,59,50,0.035)",
+          }}
+        >
+          <div style={{ display: "grid", gap: 18, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
+            <div>
+              <label style={label} htmlFor="name">Product name *</label>
+              <input id="name" style={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Olive oil 1L" />
             </div>
-        </main>
-    );
+
+            <div>
+              <label style={label} htmlFor="sku">SKU</label>
+              <input id="sku" style={input} value={sku} onChange={(e) => setSku(e.target.value)} placeholder="Optional" />
+            </div>
+
+            <div>
+              <label style={label} htmlFor="priceUsd">Price (USD) *</label>
+              <input id="priceUsd" type="number" min="0" step="0.01" style={input} value={priceUsd} onChange={(e) => setPriceUsd(e.target.value)} placeholder="0.00" />
+            </div>
+
+            <div>
+              <label style={label} htmlFor="priceLbp">Price (LBP) *</label>
+              <input id="priceLbp" type="number" min="0" step="1" style={input} value={priceLbp} onChange={(e) => setPriceLbp(e.target.value)} placeholder="0" />
+            </div>
+
+            <div>
+              <label style={label} htmlFor="quantity">Quantity in stock *</label>
+              <input id="quantity" type="number" min="0" step="1" style={input} value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="0" />
+            </div>
+
+            <div>
+              <label style={label} htmlFor="threshold">Low stock threshold *</label>
+              <input id="threshold" type="number" min="0" step="1" style={input} value={lowStockThreshold} onChange={(e) => setLowStockThreshold(e.target.value)} />
+              <p style={hint}>You&apos;ll see &quot;Low Stock&quot; at or below this number.</p>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 18 }}>
+            <label style={label} htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              placeholder="Optional"
+              style={{ ...input, height: "auto", padding: "12px 14px", resize: "vertical" }}
+            />
+          </div>
+
+          {error && (
+            <p
+              style={{
+                margin: "18px 0 0",
+                padding: "10px 12px",
+                fontSize: 13,
+                color: "#b42318",
+                background: "#fef3f2",
+                border: "1px solid #fecdca",
+                borderRadius: 10,
+              }}
+            >
+              {error}
+            </p>
+          )}
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 24 }}>
+            <Link
+              href="/products"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                height: 44,
+                padding: "0 20px",
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#173B32",
+                textDecoration: "none",
+                background: "#fff",
+                border: "1px solid #DDE6E0",
+                borderRadius: 12,
+              }}
+            >
+              Cancel
+            </Link>
+            <button
+              type="submit"
+              disabled={saving}
+              style={{
+                height: 44,
+                padding: "0 24px",
+                fontSize: 13,
+                fontWeight: 600,
+                fontFamily: "inherit",
+                color: "#fff",
+                background: "#174E40",
+                border: "none",
+                borderRadius: 12,
+                cursor: saving ? "not-allowed" : "pointer",
+                opacity: saving ? 0.6 : 1,
+              }}
+            >
+              {saving ? "Saving..." : "Save product"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  );
 }

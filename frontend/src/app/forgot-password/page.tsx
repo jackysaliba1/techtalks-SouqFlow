@@ -1,0 +1,754 @@
+
+.page {
+  --teal-dark: #073b35;
+  --teal: #105f50;
+  --teal-bright: #27b995;
+  --gold: #f5c451;
+  --ink: #123a37;
+  --muted: #73847f;
+  --surface: #fbfcfb;
+
+  min-height: 100vh;
+  width: 100%;
+  padding: 6px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  background: #f1f4f2;
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.page * {
+  box-sizing: border-box;
+}
+
+.loginLayout {
+  width: 100%;
+  min-height: calc(100vh - 12px);
+  display: grid;
+  grid-template-columns: 1.03fr 0.97fr;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid #dce4e0;
+}
+
+/* LEFT BRAND PANEL */
+
+.brandPanel {
+  position: relative;
+  isolation: isolate;
+  min-height: 690px;
+  overflow: hidden;
+  padding: 32px 7.5%;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(
+      ellipse at 12% 0%,
+      rgba(25, 125, 101, 0.5),
+      transparent 50%
+    ),
+    linear-gradient(145deg, #105f50 0%, #09473e 48%, #06352f 100%);
+  color: #fff;
+}
+
+.brand {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  color: #fff;
+  text-decoration: none;
+}
+
+.brandIcon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: linear-gradient(145deg, #1fc29a, #10886f);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.13);
+}
+
+.brandIcon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.brandText strong {
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: -0.6px;
+  font-weight: 750;
+}
+
+.brandText small {
+  color: #a5e2d0;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* SALES CARD */
+
+.salesCard {
+  position: absolute;
+  z-index: 3;
+  top: 23%;
+  right: 7.5%;
+  width: 220px;
+  padding: 16px 17px 13px;
+  border: 1px solid rgba(212, 244, 232, 0.14);
+  border-radius: 15px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.105),
+    rgba(255, 255, 255, 0.035)
+  );
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.07);
+  backdrop-filter: blur(12px);
+}
+
+.salesLabel {
+  display: block;
+  margin-bottom: 8px;
+  color: #d2e9e1;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.salesAmount {
+  display: block;
+  color: #fff;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 750;
+  letter-spacing: -1.3px;
+}
+
+.salesChart {
+  display: block;
+  width: 100%;
+  height: 39px;
+  margin-top: 6px;
+  overflow: visible;
+}
+
+.salesGrowth {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #55e4bb;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.salesGrowth span {
+  font-size: 13px;
+}
+
+/* DECORATIVE CURVES */
+
+.flowArtwork {
+  position: absolute;
+  z-index: 0;
+  top: 43%;
+  left: 0;
+  width: 100%;
+  height: 36%;
+  pointer-events: none;
+}
+
+.flowSvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* BOTTOM MESSAGE */
+
+.brandMessage {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  margin-top: auto;
+  padding-bottom: 8px;
+}
+
+.eyebrow {
+  display: block;
+  color: #138a72;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.brandMessage .eyebrow {
+  margin-bottom: 13px;
+  color: #5be0b8;
+}
+
+.brandMessage h2 {
+  max-width: 420px;
+  margin: 0 0 12px;
+  color: #fff;
+  font-size: clamp(25px, 2.7vw, 36px);
+  line-height: 1.18;
+  letter-spacing: -1.2px;
+  font-weight: 750;
+}
+
+.brandMessage p {
+  max-width: 350px;
+  margin: 0;
+  color: #d1e4dd;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.panelDecoration {
+  position: absolute;
+  z-index: 1;
+  right: -40px;
+  bottom: -80px;
+  width: 240px;
+  height: 240px;
+  border: 1px solid rgba(74, 205, 169, 0.09);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.panelDecoration span {
+  position: absolute;
+  inset: 20px;
+  border: 1px solid rgba(74, 205, 169, 0.07);
+  border-radius: 50%;
+}
+
+.panelDecoration span:nth-child(2) {
+  inset: 45px;
+}
+
+.panelDecoration span:nth-child(3) {
+  inset: 70px;
+}
+
+/* RIGHT FORM PANEL */
+
+.formPanel {
+  position: relative;
+  min-width: 0;
+  padding: 55px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fcfdfc;
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 400px;
+}
+
+.welcome {
+  margin-bottom: 31px;
+}
+
+.welcome .eyebrow {
+  margin-bottom: 11px;
+  font-size: 10px;
+}
+
+.welcome h1 {
+  margin: 0 0 10px;
+  color: #102f2d;
+  font-size: clamp(26px, 2.7vw, 36px);
+  line-height: 1.14;
+  letter-spacing: -1.2px;
+  font-weight: 750;
+}
+
+.welcome p {
+  max-width: 330px;
+  margin: 0;
+  color: #71817d;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+/* FORM FIELDS */
+
+.loginForm {
+  width: 100%;
+}
+
+.fieldGroup {
+  margin-bottom: 21px;
+}
+
+.fieldGroup label {
+  display: block;
+  margin-bottom: 8px;
+  color: #274641;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.passwordHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.passwordHeading label {
+  margin-bottom: 8px;
+}
+
+.forgotLink {
+  margin-bottom: 8px;
+  color: #138b75;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.forgotLink:hover {
+  color: #075449;
+  text-decoration: underline;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 48px;
+  border: 1px solid #dce6e1;
+  border-radius: 9px;
+  background: #fff;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.inputWrapper:focus-within {
+  border-color: #20a789;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(32, 167, 137, 0.1);
+}
+
+.inputIcon {
+  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+  margin-left: 14px;
+  color: #9baea7;
+}
+
+.inputWrapper input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 13px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #23413c;
+  font: inherit;
+  font-size: 12px;
+}
+
+.inputWrapper input::placeholder {
+  color: #9ba9a5;
+  opacity: 1;
+}
+
+.passwordToggle {
+  flex-shrink: 0;
+  width: 38px;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #81958e;
+  cursor: pointer;
+}
+
+.passwordToggle svg {
+  width: 17px;
+  height: 17px;
+}
+
+.passwordToggle:hover {
+  color: #117762;
+}
+
+/* SIGN-IN BUTTON */
+
+.loginButton {
+  width: 100%;
+  min-height: 49px;
+  margin-top: 6px;
+  padding: 0 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid #10574b;
+  border-radius: 9px;
+  background: linear-gradient(110deg, #126653, #073b35);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 5px 13px rgba(5, 66, 54, 0.16);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.loginButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.loginButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(5, 66, 54, 0.22);
+  background: linear-gradient(110deg, #147661, #084a40);
+}
+
+.loginButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.loginButton:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.statusMessage {
+  margin: 12px 0 0;
+  color: #147660;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* DIVIDER */
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 21px;
+}
+
+.divider span {
+  flex: 1;
+  height: 1px;
+  background: #e5ebe7;
+}
+
+.divider p {
+  flex-shrink: 0;
+  margin: 0;
+  color: #93a19c;
+  font-size: 10px;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+/* REGISTER BUTTON */
+
+.registerButton {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border: 1px solid #1aa989;
+  border-radius: 9px;
+  background: transparent;
+  color: #147863;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.registerButton:hover {
+  border-color: #11715d;
+  background: #eff9f5;
+  color: #095347;
+}
+
+/* PRIVACY */
+
+.privacyNote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 22px;
+  color: #84948e;
+  font-size: 10px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.privacyNote svg {
+  flex-shrink: 0;
+  width: 13px;
+  height: 13px;
+  color: #7b9b8e;
+}
+
+.mobileBrand {
+  display: none;
+}
+
+/* TABLETS */
+
+@media (max-width: 900px) {
+  .loginLayout {
+    grid-template-columns: 0.9fr 1.1fr;
+  }
+
+  .brandPanel {
+    padding: 28px 7%;
+  }
+
+  .salesCard {
+    top: 25%;
+    right: 6%;
+    width: 190px;
+  }
+
+  .salesAmount {
+    font-size: 27px;
+  }
+
+  .brandMessage h2 {
+    font-size: 27px;
+  }
+
+  .formPanel {
+    padding: 45px 28px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 640px) {
+  .page {
+    min-height: 100vh;
+    padding: 0;
+    background: #fcfdfc;
+  }
+
+  .loginLayout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    border: none;
+  }
+
+  .brandPanel {
+    min-height: 210px;
+    padding: 24px 25px;
+  }
+
+  .brandIcon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .brandText strong {
+    font-size: 17px;
+  }
+
+  .salesCard {
+    top: 27px;
+    right: 22px;
+    width: 145px;
+    padding: 11px;
+    border-radius: 11px;
+  }
+
+  .salesLabel {
+    font-size: 9px;
+    margin-bottom: 5px;
+  }
+
+  .salesAmount {
+    font-size: 23px;
+  }
+
+  .salesChart {
+    height: 25px;
+    margin-top: 4px;
+  }
+
+  .salesGrowth {
+    font-size: 8px;
+  }
+
+  .flowArtwork {
+    top: 28%;
+    height: 65%;
+  }
+
+  .brandMessage {
+    display: none;
+  }
+
+  .panelDecoration {
+    display: none;
+  }
+
+  .formPanel {
+    flex: 1;
+    align-items: flex-start;
+    padding: 42px 25px 30px;
+  }
+
+  .formContainer {
+    max-width: 430px;
+    margin: 0 auto;
+  }
+
+  .welcome {
+    margin-bottom: 30px;
+  }
+
+  .welcome h1 {
+    font-size: 29px;
+  }
+
+  .welcome p {
+    font-size: 13px;
+  }
+
+  .fieldGroup {
+    margin-bottom: 20px;
+  }
+
+  .inputWrapper {
+    height: 49px;
+  }
+
+  .loginButton {
+    min-height: 49px;
+  }
+
+  .divider {
+    margin-top: 25px;
+  }
+
+  .mobileBrand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin: 35px 0 0;
+    color: #52746a;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .mobileBrand > span:last-child {
+    color: #9aada4;
+    font-size: 9px;
+    letter-spacing: 0.8px;
+  }
+
+  .mobileBrandDot {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 7px;
+    background: #116552;
+    color: #fff;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .brandPanel {
+    min-height: 180px;
+    padding: 20px 17px;
+  }
+
+  .brandIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .brandText strong {
+    font-size: 15px;
+  }
+
+  .brandText small {
+    font-size: 7px;
+    letter-spacing: 1.3px;
+  }
+
+  .salesCard {
+    right: 14px;
+    width: 125px;
+  }
+
+  .salesAmount {
+    font-size: 21px;
+  }
+
+  .formPanel {
+    padding: 35px 18px 25px;
+  }
+
+  .welcome h1 {
+    font-size: 26px;
+  }
+
+  .passwordHeading {
+    gap: 5px;
+  }
+
+  .forgotLink {
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inputWrapper,
+  .loginButton,
+  .registerButton,
+  .forgotLink,
+  .passwordToggle {
+    transition: none;
+  }
+}

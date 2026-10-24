@@ -3,13 +3,11 @@ package techtalks.com.souqflow.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import techtalks.com.souqflow.dto.AuthResponse;
 import techtalks.com.souqflow.dto.LoginRequest;
 import techtalks.com.souqflow.dto.RegisterRequest;
@@ -19,6 +17,8 @@ import techtalks.com.souqflow.merchant.MerchantRepository;
 import techtalks.com.souqflow.repository.UserRepository;
 import techtalks.com.souqflow.security.CustomUserDetailsService;
 import techtalks.com.souqflow.security.JwtService;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -54,9 +54,9 @@ public class AuthController {
 
         // Every new account gets its own merchant
         Merchant merchant = new Merchant();
-        merchant.setName(request.getFullName() != null && !request.getFullName().isBlank()
-                ? request.getFullName()
-                : request.getEmail());
+        merchant.setName(request.getBusinessName() != null && !request.getBusinessName().isBlank()
+                ? request.getBusinessName().trim()
+                : request.getFullName());
         merchant.setEmail(request.getEmail());
         merchant = merchantRepository.save(merchant);
 
@@ -72,11 +72,34 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
         );
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+
+        UserDetails userDetails =
+                userDetailsService.loadUserByUsername(request.getEmail());
+
         String token = jwtService.generateToken(userDetails);
-        return ResponseEntity.ok(new AuthResponse(token));
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return ResponseEntity.ok(
+                new AuthResponse(token, user.getFullName())
+        );
+    }
+
+    @GetMapping("/me")
+    public Map<String, String> me(Authentication auth) {
+        User user = userRepository.findByEmail(auth.getName()).orElseThrow();
+        return Map.of(
+                "fullName", user.getFullName(),
+                "email", user.getEmail(),
+                "merchantName", user.getMerchant() != null ? user.getMerchant().getName() : ""
+        );
     }
 }

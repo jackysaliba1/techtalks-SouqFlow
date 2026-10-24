@@ -46,4 +46,15 @@ public class Order {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+
+    @PrePersist
+    void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

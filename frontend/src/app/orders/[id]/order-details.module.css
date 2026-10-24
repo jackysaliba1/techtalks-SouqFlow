@@ -1,0 +1,251 @@
+.page {
+  min-height: 100vh;
+  background: #f3f6f4;
+}
+
+.container {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+}
+
+.message {
+  font-size: 13px;
+  color: #6b7c76;
+}
+
+.error {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: 10px;
+}
+
+/* ---------- Top ---------- */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0b2a22;
+  text-decoration: none;
+  white-space: nowrap;
+  background: #fff;
+  border: 1px solid #e1e8e5;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  transition: background-color 0.15s;
+}
+
+.back:hover {
+  background: #f8faf9;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #0f8466;
+}
+
+.title {
+  margin: 4px 0 0;
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #0b2a22;
+}
+
+/* ---------- Layout ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 16px;
+  margin-top: 18px;
+  align-items: start;
+}
+
+/* ---------- Info card ---------- */
+.card {
+  box-sizing: border-box;
+  padding: 22px 24px;
+  background: #fff;
+  border: 1px solid #edf1ef;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+
+.cardTitle {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0b2a22;
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid #f1f4f2;
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.rowLabel {
+  font-size: 11px;
+  color: #8a6a4a;
+}
+
+.rowValue {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0b2a22;
+  text-align: right;
+}
+
+/* ---------- Status pill ---------- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  border-radius: 999px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.paid {
+  color: #047857;
+  background: #e7f7f0;
+}
+.paid .dot {
+  background: #10b981;
+}
+
+.pending {
+  color: #b45309;
+  background: #fdf1dc;
+}
+.pending .dot {
+  background: #f5a524;
+}
+
+.cancelled {
+  color: #dc2626;
+  background: #fdecec;
+}
+.cancelled .dot {
+  background: #ef4444;
+}
+
+.other {
+  color: #4b5563;
+  background: #f1f3f2;
+}
+.other .dot {
+  background: #9ca3af;
+}
+
+/* ---------- Total card ---------- */
+.total {
+  box-sizing: border-box;
+  padding: 22px 24px;
+  color: #fff;
+  background: linear-gradient(160deg, #0f6b55 0%, #0b4a3b 55%, #08382d 100%);
+  border-radius: 16px;
+  box-shadow: 0 14px 28px rgba(8, 56, 45, 0.18);
+}
+
+.totalTitle {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.currencyLabel {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5fe0b7;
+}
+
+.usd {
+  margin: 4px 0 0;
+  font-size: 40px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.divider {
+  height: 1px;
+  margin: 16px 0 14px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.lbp {
+  margin: 4px 0 0;
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.lbp small {
+  margin-left: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b9e8d8;
+}
+
+.rate {
+  margin: 10px 0 0;
+  font-size: 9px;
+  color: #b9e8d8;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
