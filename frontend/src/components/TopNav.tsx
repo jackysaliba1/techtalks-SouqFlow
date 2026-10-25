@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 
 const links = [
   { href: "/dashboard", label: "Dashboard" },
@@ -16,22 +17,37 @@ export default function TopNav() {
   const pathname = usePathname();
 
   const [userName, setUserName] = useState("");
-  const [userRole, setUserRole] = useState("Owner");
+  const userRole = "Owner";
 
+  // Reload the logged-in user every time the page changes, so the navbar
+  // always matches the current token (login, logout, switching accounts).
   useEffect(() => {
-    const savedName = localStorage.getItem("userName");
+    let cancelled = false;
 
-    if (savedName?.trim()) {
-      setUserName(savedName.trim());
+    let token: string | null = null;
+    try {
+      token = localStorage.getItem("token");
+    } catch {
+      /* storage unavailable */
     }
 
-    // Optional: load the role if you save it during login.
-    const savedRole = localStorage.getItem("userRole");
-
-    if (savedRole?.trim()) {
-      setUserRole(savedRole.trim());
+    if (!token) {
+      setUserName("");
+      return;
     }
-  }, []);
+
+    apiFetch<{ fullName?: string; email?: string }>("/me")
+      .then((me) => {
+        if (!cancelled) setUserName(me.fullName || me.email || "");
+      })
+      .catch(() => {
+        if (!cancelled) setUserName("");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
 
   const initials = userName
     ? userName

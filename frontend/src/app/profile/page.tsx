@@ -125,7 +125,7 @@ export default function ProfilePage() {
   useEffect(() => {
     async function load() {
       try {
-        const data = await apiFetch<Me>("/me");
+        const data = await apiFetch<Me>("/auth/me");
         setMe(data);
       } catch (err) {
         console.error("Failed to load profile:", err);
@@ -133,7 +133,7 @@ export default function ProfilePage() {
         const email = readTokenEmail();
         setMe({ email });
         setNotice(
-          "Showing limited details. Could not load your full profile."
+          "Showing limited details. Add the /auth/me endpoint on the backend to see your full profile."
         );
       } finally {
         setLoading(false);
@@ -145,6 +145,9 @@ export default function ProfilePage() {
   function logout() {
     try {
       localStorage.removeItem("token");
+      // Old versions of the app also stored these; clear them too.
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userRole");
     } catch {
       /* storage unavailable, redirect anyway */
     }

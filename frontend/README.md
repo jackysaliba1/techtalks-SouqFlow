@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SouqFlow
 
-## Getting Started
+SouqFlow is a backend for small merchants who want to keep their products, customers, orders and payments in one place. We built it with Java and Spring Boot during our internship at TechTalks.
+Every merchant account only sees its own data. One shop can never see another shop's products or orders.
 
-First, run the development server:
+## What it does:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+-Products and stock
+Each product has a name, a price and a quantity. Stock is reduced through `InventoryService` when an order comes in. A request for zero or a negative amount is rejected, and so is a request for more than what is left. Otherwise the quantity is simply subtracted, so 50 minus 7 leaves 43.
+We also made sure two orders can't break the stock. If a product has 10 in stock and two orders ask for 6 and 7 at the same time, only one of them goes through and the stock never drops below zero.
+Every product has a low stock threshold (5 by default), so the app can tell you which products are running out.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+-Customers and orders
+Customers can be added and linked to their orders. An order starts as `PENDING` and moves on from there.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+-Payments
+Orders are paid through the payment APIs. A payment is linked to an order and keeps the amount in USD and LBP, the method, the status, a provider reference and a masked account number. We never store card numbers or full bank account details.
+If a payment fails, the order stays `PENDING` and only that payment attempt is marked as failed.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+-Dashboard
+The dashboard shows tiles for Products, Customers, Orders, Payments, and Quotes & Invoices. All the numbers are filtered by the logged in account.
 
-## Learn More
+## Technologies:
 
-To learn more about Next.js, take a look at the following resources:
+the tools and tech stack i used:
+-backend: Java, Spring Boot, spring data JPA, spring security, Maven, Lombok.
+-frontend: Next.js(app router), React.js, tailwind CSS.
+-database: MySQL.
+-tools: IntellijIdea,MySQL workbench,postman.
+-collaboration: Git, github, jira.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Getting started:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Prerequisites:
+-jdk version 25
+-Maven
+-lombok
+-mysql running locally
+-git and github
+  1-create a new github repos by the team leader.
+   -clone the repos: git clone<url>
+   -cd techtalks-SouqFlow
+ 2-Configure the database:
+   -create a database and set the connection details in application.properties(like db_pass,..)
+ 3-build and run(install all the dependencies in pom.xml)
+   - ./mvnw spring-boot:run
+   - the application starts on http://localhost:8080
+4-each member gets his task and creates a new branch for every feature he's working on and then he push to github after.
+   - no merge yet only push and then after finishing we merge into the main( of course after testing everything, the connection,security,ui,functionality).
 
-## Deploy on Vercel
+## the project structure:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+  -controllers:REST endpoints.
+  -services: business logic(inventory,orders,payments).
+  -repository: data access.
+  -entity: Product, Customer,inventory,order.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# **TEAM JAVA B.**
