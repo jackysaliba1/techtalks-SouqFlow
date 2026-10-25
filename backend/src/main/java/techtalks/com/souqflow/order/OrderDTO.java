@@ -9,11 +9,11 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
-
+import java.time.LocalDateTime;
 @Getter
 @Setter
 public class OrderDTO {
-
+    private LocalDateTime createdAt;
     private Long id;
 
     @NotNull(message = "Customer id is required")

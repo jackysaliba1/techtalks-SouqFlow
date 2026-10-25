@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { createOrder } from "@/services/orderService";
@@ -10,12 +11,15 @@ import { getProducts } from "@/services/productService";
 import type { Customer } from "@/types/customer";
 import type { Product } from "@/types/product";
 
+import styles from "./order.module.css";
+
 export default function CreateOrderPage() {
   const router = useRouter();
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
 
+  // 0 = nothing selected yet (shows the "Select ..." placeholder)
   const [customerId, setCustomerId] = useState(0);
   const [productId, setProductId] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -24,6 +28,7 @@ export default function CreateOrderPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  // ---- your original data loading (without auto-selecting the first item) ----
   useEffect(() => {
     async function loadData() {
       try {
@@ -34,14 +39,6 @@ export default function CreateOrderPage() {
 
         setCustomers(customerData);
         setProducts(productData);
-
-        if (customerData.length > 0) {
-          setCustomerId(customerData[0].id);
-        }
-
-        if (productData.length > 0) {
-          setProductId(productData[0].id);
-        }
       } catch (err) {
         console.error(err);
         setError("Failed to load customers or products.");
@@ -53,16 +50,29 @@ export default function CreateOrderPage() {
     loadData();
   }, []);
 
-  const selectedProduct = products.find(
-    (product) => product.id === productId
-  );
+  const selectedProduct = products.find((product) => product.id === productId);
 
   const estimatedTotal = selectedProduct
     ? Number(selectedProduct.priceUsd) * quantity
     : 0;
 
+  const overStock =
+    selectedProduct !== undefined && quantity > Number(selectedProduct.quantity);
+
+  const canSubmit =
+    !saving &&
+    customerId !== 0 &&
+    productId !== 0 &&
+    Number.isInteger(quantity) &&
+    quantity >= 1;
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (customerId === 0) return setError("Please select a customer.");
+    if (productId === 0) return setError("Please select a product.");
+    if (!Number.isInteger(quantity) || quantity < 1)
+      return setError("Quantity must be at least 1.");
 
     try {
       setSaving(true);
@@ -77,117 +87,152 @@ export default function CreateOrderPage() {
       router.push("/orders");
     } catch (err) {
       console.error(err);
-      setError("Failed to create order.");
+      setError(
+        err instanceof Error && err.message
+          ? err.message
+          : "Failed to create order. Please try again."
+      );
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-gray-100 p-6">
-        <p className="text-gray-600">Loading...</p>
-      </main>
-    );
-  }
-
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
-      <div className="mx-auto max-w-2xl">
-        <h1 className="mb-6 text-3xl font-bold text-gray-900">
-          Create Order
-        </h1>
+    <div className={styles.page}>
+      <main className={styles.container}>
+        {/* ---------- Back link ---------- */}
+        <Link href="/orders" className={styles.back}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M11 6l-6 6 6 6" />
+          </svg>
+          Back to Orders
+        </Link>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5 rounded-xl bg-white p-6 shadow"
-        >
-          <div>
-            <label className="mb-2 block font-medium text-gray-700">
-              Customer
-            </label>
+        {/* ---------- Heading ---------- */}
+        <p className={styles.eyebrow}>New order</p>
+        <h1 className={styles.title}>Create an order</h1>
+        <p className={styles.subtitle}>
+          New orders start as Pending until payment is confirmed.
+        </p>
 
-            <select
-              value={customerId}
-              onChange={(e) => setCustomerId(Number(e.target.value))}
-              className="w-full rounded-lg border px-4 py-3 text-gray-900"
-              required
-            >
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* ---------- Form card ---------- */}
+        {loading ? (
+          <p className={styles.subtitle} style={{ marginTop: 24 }}>Loading...</p>
+        ) : (
+          <form onSubmit={handleSubmit} noValidate className={styles.card}>
+            {error && <div className={styles.formError}>{error}</div>}
 
-          <div>
-            <label className="mb-2 block font-medium text-gray-700">
-              Product
-            </label>
+            {/* Customer */}
+            <div className={styles.field}>
+              <label htmlFor="customer" className={styles.label}>
+                Customer name
+              </label>
+              <select
+                id="customer"
+                value={customerId}
+                onChange={(e) => setCustomerId(Number(e.target.value))}
+                className={`${styles.control} ${styles.select} ${customerId === 0 ? styles.placeholder : ""}`}
+              >
+                <option value={0}>Select a customer</option>
+                {customers.map((customer) => (
+                  <option key={customer.id} value={customer.id}>
+                    {customer.name}
+                  </option>
+                ))}
+              </select>
+              {customers.length === 0 && (
+                <p className={styles.hint}>
+                  No customers yet. <Link href="/customers/add">Add one</Link>
+                </p>
+              )}
+            </div>
 
-            <select
-              value={productId}
-              onChange={(e) => setProductId(Number(e.target.value))}
-              className="w-full rounded-lg border px-4 py-3 text-gray-900"
-              required
-            >
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {product.name} - ${Number(product.priceUsd).toFixed(2)}
-                </option>
-              ))}
-            </select>
-          </div>
+            {/* Product */}
+            <div className={styles.field}>
+              <label htmlFor="product" className={styles.label}>
+                Product
+              </label>
+              <select
+                id="product"
+                value={productId}
+                onChange={(e) => setProductId(Number(e.target.value))}
+                className={`${styles.control} ${styles.select} ${productId === 0 ? styles.placeholder : ""}`}
+              >
+                <option value={0}>Select a product</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name} - ${Number(product.priceUsd).toFixed(2)}
+                  </option>
+                ))}
+              </select>
+              {selectedProduct && (
+                <p className={styles.hint}>{Number(selectedProduct.quantity)} in stock</p>
+              )}
+            </div>
 
-          <div>
-            <label className="mb-2 block font-medium text-gray-700">
-              Quantity
-            </label>
+            {/* Quantity + Total */}
+            <div className={styles.row}>
+              <div className={styles.field}>
+                <label htmlFor="quantity" className={styles.label}>
+                  Quantity
+                </label>
+                <input
+                  id="quantity"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  className={`${styles.control} ${overStock ? styles.warnBorder : ""}`}
+                />
+                {overStock && (
+                  <p className={styles.warn}>
+                    Only {Number(selectedProduct?.quantity)} in stock.
+                  </p>
+                )}
+              </div>
 
-            <input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="w-full rounded-lg border px-4 py-3 text-gray-900"
-              required
-            />
-          </div>
+              <div className={styles.field}>
+                <label htmlFor="total" className={styles.label}>
+                  Total (USD)
+                </label>
+                <div className={styles.prefixWrap}>
+                  <span className={styles.prefix}>$</span>
+                  <input
+                    id="total"
+                    type="text"
+                    readOnly
+                    tabIndex={-1}
+                    placeholder="0.00"
+                    value={selectedProduct ? estimatedTotal.toFixed(2) : ""}
+                    className={`${styles.control} ${styles.withPrefix} ${styles.readonly}`}
+                  />
+                </div>
+              </div>
+            </div>
 
-          <div className="rounded-lg bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">
-              Estimated Total
-            </p>
+            {/* Status */}
+            <div className={styles.status}>
+              <span className={styles.statusLabel}>Order status</span>
+              <span className={styles.pill}>
+                <span className={styles.dot} />
+                Pending
+              </span>
+            </div>
 
-            <p className="text-xl font-bold text-gray-900">
-              ${estimatedTotal.toFixed(2)}
-            </p>
-          </div>
+            {/* ---------- Actions ---------- */}
+            <div className={styles.actions}>
+              <button type="submit" disabled={!canSubmit} className={styles.primary}>
+                {saving ? "Creating..." : "Create order"}
+              </button>
 
-          <p className="text-sm text-gray-500">
-            New orders are created with PENDING status.
-          </p>
-
-          {error && (
-            <p className="text-red-600">
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={
-              saving ||
-              customers.length === 0 ||
-              products.length === 0
-            }
-            className="w-full rounded-lg bg-black px-5 py-3 font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Save Order"}
-          </button>
-        </form>
-      </div>
-    </main>
+              <Link href="/orders" className={styles.secondary}>
+                Cancel
+              </Link>
+            </div>
+          </form>
+        )}
+      </main>
+    </div>
   );
 }

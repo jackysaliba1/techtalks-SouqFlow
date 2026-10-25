@@ -29,4 +29,9 @@ public class RegisterRequest {
     public void setPassword(String password) {
         this.password = password;
     }
+    private String businessName;
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
 }

@@ -16,3 +16,9 @@ export async function createProduct(
         body: JSON.stringify(product),
     });
 }
+
+export async function deleteProduct(id: number): Promise<void> {
+    return apiFetch<void>(`/product/${id}`, {
+        method: "DELETE",
+    });
+}
