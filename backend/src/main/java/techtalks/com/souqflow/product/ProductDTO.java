@@ -16,7 +16,7 @@ public class ProductDTO {
 
     private Long id;
 
-    @NotNull(message = "Merchant ID is required")
+
     private Long merchantId;
 
     @NotBlank(message = "Product name is required")
@@ -69,7 +69,9 @@ public class ProductDTO {
         product.setPriceUsd(this.priceUsd);
         product.setPriceLbp(this.priceLbp);
         product.setQuantity(this.quantity);
-        product.setLowStockThreshold(this.lowStockThreshold);
+        if (this.lowStockThreshold != null) {
+            product.setLowStockThreshold(this.lowStockThreshold);
+        }
         product.setSku(this.sku);
         product.setMerchant(merchant);
         return product;
