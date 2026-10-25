@@ -1,9 +1,7 @@
 package techtalks.com.souqflow.order;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-import techtalks.com.souqflow.InventoryService;
+import techtalks.com.souqflow.product.InventoryService;
 import techtalks.com.souqflow.customer.Customer;
 import techtalks.com.souqflow.customer.CustomerRepository;
 import techtalks.com.souqflow.product.Product;
@@ -65,16 +63,6 @@ public class OrderService {
     public OrderDTO updateStatus(Long id, String status) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-
-        String current = order.getStatus();
-        boolean valid = "PENDING".equals(current)
-                && ("PAID".equals(status) || "CANCELLED".equals(status));
-
-        if (!valid) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Cannot change an order from " + current + " to " + status);
-        }
-
         order.setStatus(status);
         return toDto(orderRepository.save(order));
     }
@@ -93,7 +81,6 @@ public class OrderService {
         dto.setStatus(order.getStatus());
         dto.setTotalUsd(order.getTotalUsd());
         dto.setTotalLbp(order.getTotalLbp());
-        dto.setCreatedAt(order.getCreatedAt());
         return dto;
     }
 }
